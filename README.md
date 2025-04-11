@@ -16,8 +16,11 @@ A simple yet elegant React Native application that demonstrates the use of a `Sw
 
 ## 📸 Demo
 
-![img1](https://github.com/user-attachments/assets/2dd394c8-d8df-406f-91c3-e8dc8b22e3a0)
-![img2](https://github.com/user-attachments/assets/58a1d339-3be6-4ac8-9893-abf24ebc2a47)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2dd394c8-d8df-406f-91c3-e8dc8b22e3a0" alt="Demo 1" width="300"/>
+  <br/><br/>
+  <img src="https://github.com/user-attachments/assets/58a1d339-3be6-4ac8-9893-abf24ebc2a47" alt="Demo 2" width="300"/>
+</p>
 
 ---
 
