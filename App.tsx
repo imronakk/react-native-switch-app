@@ -1,131 +1,106 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
   View,
+  Text,
+  Switch,
+  StyleSheet,
+  TextInput,
+  SafeAreaView,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [name, setName] = useState('');
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  useEffect(() => {
+    const loadData = async () => {
+      const savedSwitch = await AsyncStorage.getItem('switchState');
+      const savedName = await AsyncStorage.getItem('userName');
+      if (savedSwitch !== null) setIsEnabled(JSON.parse(savedSwitch));
+      if (savedName !== null) setName(savedName);
+    };
+    loadData();
+  }, []);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  useEffect(() => {
+    AsyncStorage.setItem('switchState', JSON.stringify(isEnabled));
+  }, [isEnabled]);
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleNameChange = (text: string) => {
+    setName(text);
+    setIsEnabled(false); // Reset switch when name is changed
+    AsyncStorage.setItem('userName', text);
   };
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
-  );
-}
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>React Native Switch Demo</Text>
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+      <TextInput
+        style={styles.input}
+        placeholder="Enter your name..."
+        value={name}
+        onChangeText={handleNameChange}
+      />
+
+      <View style={styles.switchContainer}>
+        <Text style={styles.label}>{isEnabled ? 'ON' : 'OFF'}</Text>
+        <Switch
+          trackColor={{ false: '#ccc', true: '#81b0ff' }}
+          thumbColor={isEnabled ? '#007bff' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={setIsEnabled}
+          value={isEnabled}
+        />
+      </View>
+
+      {isEnabled && name.trim() !== '' ? (
+        <Text style={styles.greeting}>Hello, {name}!</Text>
+      ) : null}
+    </SafeAreaView>
+  );
+};
 
 export default App;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+    backgroundColor: '#f2f2f2',
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  input: {
+    height: 50,
+    borderColor: '#aaa',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginBottom: 20,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+    marginVertical: 16,
+  },
+  label: {
+    fontSize: 20,
+    fontWeight: '500',
+  },
+  greeting: {
+    marginTop: 20,
+    fontSize: 18,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+});
